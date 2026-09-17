@@ -27,7 +27,7 @@ jobs:
 
       - name: Build unsigned iPhone app
         run: |
-          xcodebuild -project SpectraWallet.xcodeproj -scheme SpectraWallet \
+          xcodebuild -project Phantom.xcodeproj -scheme Phantom \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 
