@@ -1,0 +1,45 @@
+name: Build Phantom iPhone App
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test balance logic
+        run: |
+          swiftc SpectraWallet/Wallet.swift Tests/main.swift -o /tmp/wallet-tests
+          /tmp/wallet-tests
+
+      - name: Install project generator
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        run: |
+          xcodebuild -project SpectraWallet.xcodeproj -scheme SpectraWallet \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+
+      - name: Package unsigned IPA
+        run: |
+          bash scripts/package-ipa.sh
+          mv build/Spectra-unsigned.ipa build/Phantom-unsigned.ipa
+
+      - name: Upload Phantom IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Phantom-unsigned-iPhone
+          path: build/Phantom-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
