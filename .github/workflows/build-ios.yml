@@ -12,7 +12,8 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Test balance logic
         run: |
@@ -25,16 +26,18 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Build unsigned iPhone app
+      - name: Build unsigned Phantom iPhone app
         run: |
           xcodebuild -project Phantom.xcodeproj -scheme Phantom \
-            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
 
-      - name: Package unsigned IPA
-        run: |
-          bash scripts/package-ipa.sh
-          mv build/Spectra-unsigned.ipa build/Phantom-unsigned.ipa
+      - name: Package Phantom unsigned IPA
+        run: bash scripts/package-ipa.sh
 
       - name: Upload Phantom IPA
         uses: actions/upload-artifact@v4
